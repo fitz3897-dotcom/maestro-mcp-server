@@ -52,6 +52,12 @@ function createMockMaestro() {
     rawCommand: vi
       .fn()
       .mockResolvedValue({ stdout: "raw output", stderr: "", exitCode: 0 }),
+    launchStudio: vi
+      .fn()
+      .mockResolvedValue({ stdout: "Studio launched", stderr: "", exitCode: 0 }),
+    runSharded: vi
+      .fn()
+      .mockResolvedValue({ stdout: "Sharded run complete", stderr: "", exitCode: 0 }),
   };
 }
 
@@ -398,6 +404,32 @@ function buildServer(maestro: ReturnType<typeof createMockMaestro>) {
     },
   );
 
+  // 27. launch_studio
+  server.tool(
+    "launch_studio", "Launch Maestro Studio",
+    { deviceId: z.string().optional(), port: z.number().optional() },
+    async ({ deviceId, port }) => {
+      const result = await maestro.launchStudio(deviceId, port);
+      const output = `Maestro Studio\nExit: ${result.exitCode}\n${result.stdout}\n${result.stderr}`;
+      return result.exitCode === 0 ? ok(output) : fail(output);
+    },
+  );
+
+  // 28. run_sharded
+  server.tool(
+    "run_sharded", "Run sharded flows",
+    {
+      flowDir: z.string(),
+      shardCount: z.number(),
+      strategy: z.enum(["all", "split"]).optional(),
+    },
+    async ({ flowDir, shardCount, strategy }) => {
+      const result = await maestro.runSharded(flowDir, shardCount, strategy);
+      const output = `Sharded run (${strategy ?? "split"}, ${shardCount} shards)\nExit: ${result.exitCode}\n${result.stdout}\n${result.stderr}`;
+      return result.exitCode === 0 ? ok(output) : fail(output);
+    },
+  );
+
   return server;
 }
 
@@ -439,9 +471,9 @@ function getText(result: any): string {
 // ── Tool listing ───────────────────────────────────────────────────────────
 
 describe("MCP tool listing", () => {
-  it("registers all 26 tools", async () => {
+  it("registers all 28 tools", async () => {
     const { tools } = await client.listTools();
-    expect(tools.length).toBe(26);
+    expect(tools.length).toBe(28);
   });
 
   it("includes all expected tool names", async () => {
@@ -450,9 +482,9 @@ describe("MCP tool listing", () => {
     const expected = [
       "assert_visible", "check_environment", "copy_text", "double_tap",
       "erase_text", "execute_flow_steps", "get_ui_hierarchy", "hide_keyboard",
-      "input_text", "launch_app", "list_devices", "long_press",
+      "input_text", "launch_app", "launch_studio", "list_devices", "long_press",
       "maestro_command", "open_link", "press_key", "run_flow",
-      "run_flow_on_multiple_devices", "scroll", "set_location",
+      "run_flow_on_multiple_devices", "run_sharded", "scroll", "set_location",
       "set_orientation", "set_permissions", "stop_app", "swipe",
       "take_screenshot", "tap", "wait_for_animation",
     ].sort();
@@ -916,5 +948,56 @@ describe("tool: set_orientation", () => {
     await callTool("set_orientation", { appId: "com.test", orientation: "landscape" });
     const call = mockMaestro.executeSteps.mock.calls.at(-1)!;
     expect(call[1][0].params).toBe("LANDSCAPE");
+  });
+});
+
+// ── launch_studio ─────────────────────────────────────────────────────────
+
+describe("tool: launch_studio", () => {
+  it("launches studio with defaults", async () => {
+    const result = await callTool("launch_studio");
+    expect(result.isError).toBeFalsy();
+    expect(getText(result)).toContain("Maestro Studio");
+    expect(mockMaestro.launchStudio).toHaveBeenCalledWith(undefined, undefined);
+  });
+
+  it("passes deviceId and port", async () => {
+    await callTool("launch_studio", { deviceId: "emulator-5554", port: 8080 });
+    expect(mockMaestro.launchStudio).toHaveBeenCalledWith("emulator-5554", 8080);
+  });
+
+  it("returns error on failure", async () => {
+    mockMaestro.launchStudio.mockResolvedValueOnce({
+      stdout: "", stderr: "Cannot connect", exitCode: 1,
+    });
+    const result = await callTool("launch_studio");
+    expect(result.isError).toBe(true);
+    expect(getText(result)).toContain("Cannot connect");
+  });
+});
+
+// ── run_sharded ───────────────────────────────────────────────────────────
+
+describe("tool: run_sharded", () => {
+  it("runs with default split strategy", async () => {
+    const result = await callTool("run_sharded", { flowDir: "./flows", shardCount: 3 });
+    expect(result.isError).toBeFalsy();
+    expect(getText(result)).toContain("Sharded run");
+    expect(getText(result)).toContain("split");
+    expect(mockMaestro.runSharded).toHaveBeenCalledWith("./flows", 3, undefined);
+  });
+
+  it("runs with all strategy", async () => {
+    await callTool("run_sharded", { flowDir: "./flows", shardCount: 2, strategy: "all" });
+    expect(mockMaestro.runSharded).toHaveBeenCalledWith("./flows", 2, "all");
+  });
+
+  it("returns error on failure", async () => {
+    mockMaestro.runSharded.mockResolvedValueOnce({
+      stdout: "", stderr: "No devices available", exitCode: 1,
+    });
+    const result = await callTool("run_sharded", { flowDir: "./flows", shardCount: 4 });
+    expect(result.isError).toBe(true);
+    expect(getText(result)).toContain("No devices available");
   });
 });
