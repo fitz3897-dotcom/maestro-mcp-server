@@ -510,6 +510,43 @@ Some flows take longer than the default timeout. Use the `maestro_command` tool 
 - For Android, ensure WebView debugging is enabled in the app
 - See [Maestro WebView troubleshooting](https://docs.maestro.dev/platform-support/web-views)
 
+## Testing
+
+The project includes **115 unit tests** across 3 test suites, using [Vitest](https://vitest.dev/).
+
+### Run Tests
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+```
+
+### Test Suites
+
+| Suite | Tests | What it covers |
+|-------|-------|----------------|
+| `tests/yaml-builder.test.ts` | 32 | Pure-function tests for YAML generation: `escapeYaml` (special characters, empty strings), `formatValue` (strings, numbers, booleans, objects, null), `formatStep` (no-param, string, number, boolean, flat object, nested object, array params), `buildYaml` (header, separator, single/multi-step, complete login flow) |
+| `tests/maestro-client.test.ts` | 28 | `MaestroClient` with mocked `child_process`: `checkInstallation` (installed/not found/empty stderr), `listDevices` (Android adb parsing, iOS simctl JSON parsing, both failing, malformed JSON, missing state field), `runFlow` (with/without device, failure), `executeSteps` (YAML generation + execution, device passthrough, failure), `executeStepsMultiDevice` (parallel execution, partial failures), `runSharded` (split/all strategies), `takeScreenshot` (default/device/custom path), `getHierarchy`, `launchStudio`, `rawCommand` |
+| `tests/mcp-tools.test.ts` | 55 | Integration tests for all **26 MCP tools** via `InMemoryTransport`: tool registration count and names, argument validation (text/id/coordinates/direction), branch logic (clearState, scrollUntilVisible, assertNotVisible, orientation uppercase), error paths (swipe without params, run_flow without input, multi-device partial failure, check_environment not installed, list_devices empty), mock call verification for correct Maestro commands |
+
+### Test Architecture
+
+```
+Tests mock at two levels:
+
+1. maestro-client.test.ts  →  mocks child_process (execFile, spawn)
+                               to verify CLI argument construction
+                               and output parsing
+
+2. mcp-tools.test.ts       →  mocks MaestroClient methods
+                               to verify tool logic, argument mapping,
+                               and MCP protocol compliance
+                               (uses InMemoryTransport, no real I/O)
+```
+
 ## References
 
 - [Maestro GitHub](https://github.com/mobile-dev-inc/Maestro)

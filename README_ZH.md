@@ -510,6 +510,41 @@ console.log(result);
 - 对于 Android，确保应用中已启用 WebView 调试
 - 详见 [Maestro WebView 故障排查](https://docs.maestro.dev/platform-support/web-views)
 
+## 测试
+
+项目包含 **115 个单元测试**，分布在 3 个测试套件中，使用 [Vitest](https://vitest.dev/) 框架。
+
+### 运行测试
+
+```bash
+# 运行全部测试
+npm test
+
+# 监听模式
+npm run test:watch
+```
+
+### 测试套件
+
+| 套件 | 测试数 | 覆盖范围 |
+|------|--------|----------|
+| `tests/yaml-builder.test.ts` | 32 | YAML 生成纯函数测试：`escapeYaml`（特殊字符、空字符串）、`formatValue`（字符串、数字、布尔值、对象、null）、`formatStep`（无参数、字符串、数字、布尔值、扁平对象、嵌套对象、数组参数）、`buildYaml`（头部、分隔符、单步/多步、完整登录流程） |
+| `tests/maestro-client.test.ts` | 28 | `MaestroClient` 配合 mock `child_process`：`checkInstallation`（已安装/未找到/空 stderr）、`listDevices`（Android adb 解析、iOS simctl JSON 解析、同时失败、JSON 格式错误、缺少 state 字段）、`runFlow`（有/无设备、失败情况）、`executeSteps`（YAML 生成+执行、设备透传、失败）、`executeStepsMultiDevice`（并行执行、部分失败）、`runSharded`（split/all 策略）、`takeScreenshot`（默认/指定设备/自定义路径）、`getHierarchy`、`launchStudio`、`rawCommand` |
+| `tests/mcp-tools.test.ts` | 55 | 全部 **26 个 MCP 工具**的集成测试（通过 `InMemoryTransport`）：工具注册数量和名称验证、参数验证（文本/ID/坐标/方向）、分支逻辑（clearState、scrollUntilVisible、assertNotVisible、横竖屏大写转换）、错误路径（无参数 swipe、无输入 run_flow、多设备部分失败、环境未安装、空设备列表）、mock 调用验证确保正确的 Maestro 命令 |
+
+### 测试架构
+
+```
+测试在两个层级进行 mock：
+
+1. maestro-client.test.ts  →  mock child_process（execFile、spawn）
+                               验证 CLI 参数构造和输出解析
+
+2. mcp-tools.test.ts       →  mock MaestroClient 方法
+                               验证工具逻辑、参数映射和 MCP 协议合规性
+                               （使用 InMemoryTransport，无真实 I/O）
+```
+
 ## 参考资料
 
 - [Maestro GitHub 仓库](https://github.com/mobile-dev-inc/Maestro)

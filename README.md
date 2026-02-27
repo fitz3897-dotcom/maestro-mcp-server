@@ -41,6 +41,20 @@ npm run build
 | Tool List | [Available Tools](./README_EN.md#available-tools) | [工具列表](./README_ZH.md#工具列表) |
 | AI Integration | [Integration Guide](./README_EN.md#ai-tool-integration-guide) | [AI 工具接入指南](./README_ZH.md#ai-工具接入指南) |
 | Troubleshooting | [Troubleshooting](./README_EN.md#troubleshooting) | [常见问题](./README_ZH.md#常见问题) |
+| Testing | [Testing](./README_EN.md#testing) | [测试](./README_ZH.md#测试) |
+
+## Testing | 测试
+
+```bash
+npm test        # run all 115 tests
+npm run test:watch  # watch mode
+```
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| `yaml-builder.test.ts` | 32 | YAML generation (escapeYaml, formatValue, formatStep, buildYaml) |
+| `maestro-client.test.ts` | 28 | MaestroClient with mocked child_process |
+| `mcp-tools.test.ts` | 55 | All 26 MCP tools via InMemoryTransport |
 
 ## License
 
