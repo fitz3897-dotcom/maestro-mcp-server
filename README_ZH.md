@@ -71,7 +71,7 @@ xcrun simctl boot "iPhone 16"
 ## 安装
 
 ```bash
-git clone https://github.com/anthropics/maestro-mcp-server.git
+git clone https://github.com/fitz3897-dotcom/maestro-mcp-server.git
 cd maestro-mcp-server
 npm install
 npm run build

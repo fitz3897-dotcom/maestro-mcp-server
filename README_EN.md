@@ -71,7 +71,7 @@ Node.js **18+** is required. Download from [nodejs.org](https://nodejs.org/).
 ## Installation
 
 ```bash
-git clone https://github.com/anthropics/maestro-mcp-server.git
+git clone https://github.com/fitz3897-dotcom/maestro-mcp-server.git
 cd maestro-mcp-server
 npm install
 npm run build

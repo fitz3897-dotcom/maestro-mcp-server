@@ -26,7 +26,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 curl -fsSL "https://get.maestro.mobile.dev" | bash
 
 # Clone & build | 克隆并构建
-git clone https://github.com/anthropics/maestro-mcp-server.git
+git clone https://github.com/fitz3897-dotcom/maestro-mcp-server.git
 cd maestro-mcp-server
 npm install
 npm run build
