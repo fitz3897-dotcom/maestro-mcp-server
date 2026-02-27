@@ -14,7 +14,7 @@ export interface ExecResult {
 }
 
 /** Run a shell command and collect output. */
-function exec(
+export function exec(
   cmd: string,
   args: string[],
   timeoutMs = 120_000,
@@ -31,7 +31,7 @@ function exec(
 }
 
 /** Run a command and stream output in real-time, returning collected result. */
-function execStream(
+export function execStream(
   cmd: string,
   args: string[],
   timeoutMs = 180_000,
@@ -67,7 +67,7 @@ export interface FlowStep {
   params?: any;
 }
 
-function buildYaml(appId: string, steps: FlowStep[]): string {
+export function buildYaml(appId: string, steps: FlowStep[]): string {
   const lines: string[] = [`appId: ${appId}`, "---"];
   for (const step of steps) {
     lines.push(formatStep(step));
@@ -76,7 +76,7 @@ function buildYaml(appId: string, steps: FlowStep[]): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatStep(step: FlowStep): string {
+export function formatStep(step: FlowStep): string {
   const { command, params } = step;
 
   // Simple commands without params
@@ -119,13 +119,13 @@ function formatStep(step: FlowStep): string {
   return `- ${command}: ${JSON.stringify(params)}`;
 }
 
-function formatValue(v: unknown): string {
+export function formatValue(v: unknown): string {
   if (typeof v === "string") return `"${escapeYaml(v)}"`;
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   return JSON.stringify(v);
 }
 
-function escapeYaml(s: string): string {
+export function escapeYaml(s: string): string {
   return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
