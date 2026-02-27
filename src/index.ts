@@ -230,7 +230,7 @@ server.tool(
         command: "scrollUntilVisible",
         params: {
           element: scrollUntilVisible,
-          direction: direction ?? "DOWN",
+          direction: (direction ?? "down").toUpperCase(),
         },
       });
     } else {
@@ -661,6 +661,42 @@ server.tool(
     ];
     const { yaml, result } = await maestro.executeSteps(appId, steps, deviceId);
     const output = `**Flow:**\n\`\`\`yaml\n${yaml}\`\`\`\n\n**Exit:** ${result.exitCode}\n${result.stdout}\n${result.stderr}`;
+    return result.exitCode === 0 ? ok(output) : fail(output);
+  },
+);
+
+// ── Tool: launch_studio ─────────────────────────────────────────────────────
+
+server.tool(
+  "launch_studio",
+  "Launch Maestro Studio, an interactive UI inspector for the device",
+  {
+    deviceId: z.string().optional().describe("Target device ID"),
+    port: z.number().optional().describe("Port for Maestro Studio (default: 9999)"),
+  },
+  async ({ deviceId, port }) => {
+    const result = await maestro.launchStudio(deviceId, port);
+    const output = `**Maestro Studio**\n**Exit:** ${result.exitCode}\n${result.stdout}\n${result.stderr}`;
+    return result.exitCode === 0 ? ok(output) : fail(output);
+  },
+);
+
+// ── Tool: run_sharded ──────────────────────────────────────────────────────
+
+server.tool(
+  "run_sharded",
+  "Run Maestro flows with sharding across multiple devices for parallel test execution",
+  {
+    flowDir: z.string().describe("Path to directory containing flow YAML files"),
+    shardCount: z.number().describe("Number of shards (devices) to split across"),
+    strategy: z
+      .enum(["all", "split"])
+      .optional()
+      .describe("Sharding strategy: 'all' runs all flows on every shard, 'split' divides flows across shards (default: split)"),
+  },
+  async ({ flowDir, shardCount, strategy }) => {
+    const result = await maestro.runSharded(flowDir, shardCount, strategy);
+    const output = `**Sharded run** (${strategy ?? "split"}, ${shardCount} shards)\n**Exit:** ${result.exitCode}\n${result.stdout}\n${result.stderr}`;
     return result.exitCode === 0 ? ok(output) : fail(output);
   },
 );

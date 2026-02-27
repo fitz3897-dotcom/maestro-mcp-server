@@ -24,7 +24,7 @@ export function exec(
       resolve({
         stdout: stdout ?? "",
         stderr: stderr ?? "",
-        exitCode: error ? (error as any).code ?? 1 : 0,
+        exitCode: error ? (typeof (error as any).code === "number" ? (error as any).code : 1) : 0,
       });
     });
   });
@@ -269,9 +269,8 @@ export class MaestroClient {
   async takeScreenshot(deviceId?: string, outputPath?: string): Promise<{ path: string; result: ExecResult }> {
     const dir = await mkdtemp(join(tmpdir(), "maestro-mcp-screenshot-"));
     const screenshotPath = outputPath ?? join(dir, "screenshot.png");
-    const steps: FlowStep[] = [{ command: "takeScreenshot", params: screenshotPath }];
 
-    // We need an app context; use a generic approach
+    // No appId context needed; use a minimal flow
     const yaml = `---\n- takeScreenshot: ${screenshotPath}\n`;
     const flowPath = join(dir, "screenshot_flow.yaml");
     await writeFile(flowPath, yaml, "utf-8");
