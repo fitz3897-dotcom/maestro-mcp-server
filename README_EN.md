@@ -11,7 +11,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 │  AI Client   │ ◄───────────────────► │  Maestro MCP     │ ◄──────────► │  Maestro CLI     │
 │  (Claude,    │                        │  Server          │              │                  │
 │   ChatGPT,   │                        │                  │              │  ┌──────┐        │
-│   Cursor...) │                        │  26 tools        │              │  │ ADB  │ Android│
+│   Cursor...) │                        │  28 tools        │              │  │ ADB  │ Android│
 │              │                        │  Multi-device    │              │  ├──────┤        │
 │              │                        │  WebView/H5      │              │  │Simctl│ iOS    │
 └─────────────┘                        └──────────────────┘              └─────────────────┘
@@ -19,7 +19,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 ## Features
 
-- **26 MCP tools** covering all major Maestro actions
+- **28 MCP tools** covering all major Maestro actions
 - **Multi-device concurrent execution** — run the same flow on multiple devices simultaneously
 - **WebView / H5 support** — Maestro natively handles WebView elements with no extra configuration
 - **Cross-platform** — Android devices/emulators + iOS simulators
@@ -512,7 +512,7 @@ Some flows take longer than the default timeout. Use the `maestro_command` tool 
 
 ## Testing
 
-The project includes **115 unit tests** across 3 test suites, using [Vitest](https://vitest.dev/).
+The project includes **121 unit tests** across 3 test suites, using [Vitest](https://vitest.dev/).
 
 ### Run Tests
 
@@ -530,7 +530,7 @@ npm run test:watch
 |-------|-------|----------------|
 | `tests/yaml-builder.test.ts` | 32 | Pure-function tests for YAML generation: `escapeYaml` (special characters, empty strings), `formatValue` (strings, numbers, booleans, objects, null), `formatStep` (no-param, string, number, boolean, flat object, nested object, array params), `buildYaml` (header, separator, single/multi-step, complete login flow) |
 | `tests/maestro-client.test.ts` | 28 | `MaestroClient` with mocked `child_process`: `checkInstallation` (installed/not found/empty stderr), `listDevices` (Android adb parsing, iOS simctl JSON parsing, both failing, malformed JSON, missing state field), `runFlow` (with/without device, failure), `executeSteps` (YAML generation + execution, device passthrough, failure), `executeStepsMultiDevice` (parallel execution, partial failures), `runSharded` (split/all strategies), `takeScreenshot` (default/device/custom path), `getHierarchy`, `launchStudio`, `rawCommand` |
-| `tests/mcp-tools.test.ts` | 55 | Integration tests for all **26 MCP tools** via `InMemoryTransport`: tool registration count and names, argument validation (text/id/coordinates/direction), branch logic (clearState, scrollUntilVisible, assertNotVisible, orientation uppercase), error paths (swipe without params, run_flow without input, multi-device partial failure, check_environment not installed, list_devices empty), mock call verification for correct Maestro commands |
+| `tests/mcp-tools.test.ts` | 61 | Integration tests for all **28 MCP tools** via `InMemoryTransport`: tool registration count and names, argument validation (text/id/coordinates/direction), branch logic (clearState, scrollUntilVisible, assertNotVisible, orientation uppercase), error paths (swipe without params, run_flow without input, multi-device partial failure, check_environment not installed, list_devices empty), mock call verification for correct Maestro commands |
 
 ### Test Architecture
 

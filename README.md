@@ -13,7 +13,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 │  AI Client   │ ◄───────────────────► │  Maestro MCP     │ ◄──────────► │  Maestro CLI     │
 │  (Claude,    │                        │  Server          │              │                  │
 │   ChatGPT,   │                        │                  │              │  ┌──────┐        │
-│   Cursor...) │                        │  26 tools        │              │  │ ADB  │ Android│
+│   Cursor...) │                        │  28 tools        │              │  │ ADB  │ Android│
 │              │                        │  Multi-device    │              │  ├──────┤        │
 │              │                        │  WebView/H5      │              │  │Simctl│ iOS    │
 └─────────────┘                        └──────────────────┘              └─────────────────┘
@@ -46,7 +46,7 @@ npm run build
 ## Testing | 测试
 
 ```bash
-npm test        # run all 115 tests
+npm test        # run all 121 tests
 npm run test:watch  # watch mode
 ```
 
@@ -54,7 +54,7 @@ npm run test:watch  # watch mode
 |-------|-------|----------|
 | `yaml-builder.test.ts` | 32 | YAML generation (escapeYaml, formatValue, formatStep, buildYaml) |
 | `maestro-client.test.ts` | 28 | MaestroClient with mocked child_process |
-| `mcp-tools.test.ts` | 55 | All 26 MCP tools via InMemoryTransport |
+| `mcp-tools.test.ts` | 61 | All 28 MCP tools via InMemoryTransport |
 
 ## License
 
